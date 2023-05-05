@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -16,15 +17,17 @@ class UserController extends Controller
         //   limit 3
 
         $users = User::where('email_verified_at', '!=', NULL)->orderBy('created_at', 'DESC')->limit(3)->get(); // replace this with Eloquent statement
-        // dd($users);
         return view('users.index', compact('users'));
     }
 
     public function show($userId)
     {
-        $user = NULL; // TASK: find user by $userId or show "404 not found" page
-
-        return view('users.show', compact('user'));
+        try {
+            $user = User::findOrFail($userId); // TASK: find user by $userId or show "404 not found" page
+            return view('users.show', compact('user'));
+        } catch (Exception $e) {
+            abort(404, 'Unauthorized action.');
+        }
     }
 
     public function check_create($name, $email)
